@@ -68,6 +68,8 @@ def pred_signal(model, code, start_date, end_date, classes=['0', '1', '2']):
     # 81レコードなければ計算しない
     if df.shape[0] >= 81:
         df = df.tail(81)  # 最終日固定したいからtail
+        _date_exe = df.iloc[-1]['date'].date()
+        _date_exe_close = df.iloc[-1]['close']
 
         # 規格化するために前日との収益率に変換
         for col in df.columns:
@@ -84,13 +86,17 @@ def pred_signal(model, code, start_date, end_date, classes=['0', '1', '2']):
         pred_pb = model.predict(arr)
         y = np.argmax(pred_pb, axis=1)
 
-    return y, pred_pb[y]
+        # リストの中身を文字列に変換（リスト→文字）
+        pred_pb = map(str, pred_pb[0])
+        pred_pb = ', '.join(pred_pb)
+
+    return y[0], pred_pb, _date_exe_close, _date_exe
 
 
 def get_args():
     ap = argparse.ArgumentParser()
-    ap.add_argument("-o", "--output_dir", type=str, default=r'nD:\work\signal_model\output\predict')
-    ap.add_argument("-m", "--model_path", type=str, default=r'nD:\work\signal_model\output\model\tf_base_class_all_py\best_val_loss.h5')
+    ap.add_argument("-o", "--output_dir", type=str, default=r'D:\work\signal_model\output\predict')
+    ap.add_argument("-m", "--model_path", type=str, default=r'D:\work\signal_model\output\model\tf_base_class_all_py\optuna\best_trial_accuracy.h5')
     ap.add_argument("-c", "--codes", type=int, nargs='*', default=None)
     ap.add_argument("-d", "--date_exe", type=str, default=None)
     ap.add_argument("-t_d", "--term_days", type=int, default=1)
@@ -157,26 +163,31 @@ if __name__ == '__main__':
     cs = []
     ys = []
     pbs = []
+    closes = []
     # args['term_days']で指定した日数前から実行繰り返す
     for t_d in range(args['term_days']):
         date_exe = d_end_date - datetime.timedelta(days=t_d)
         d_start_date = date_exe - datetime.timedelta(weeks=4 * 4 + 2)  # 4ヶ月半前までデータとる
-        print(date_exe, d_start_date)
+        print(d_start_date, date_exe)
 
         for code in codes:
             try:
                 # データ作成して予測
-                y, pb = pred_signal(model, code, d_start_date, d_end_date)
-                print('pred_class, probability:', y, pb)
+                y, pb, _date_exe_close, _date_exe = pred_signal(model, code, d_start_date, date_exe)
+                print('pred_class, probability, date_exe_close, date_exe:', y, pb, _date_exe_close, _date_exe)
 
-                date_exes.append(str(d_end_date))
+                date_exes.append(str(_date_exe))
                 cs.append(code)
                 ys.append(y)
                 pbs.append(pb)
+                closes.append(_date_exe_close)
 
             except Exception:
                 traceback.print_exc()
                 pass
 
-    pred_df = pd.DataFrame({'date_exe': date_exes, 'code': cs, 'pred_y': ys, 'pred_pb': pbs})
+    pred_df = pd.DataFrame({'date_exe': date_exes, 'date_exe_close': closes, 'code': cs, '15_days_after_pred_y': ys, 'pred_pb': pbs})
+    pred_df = pred_df.sort_values(by='date_exe')
+    pred_df = pred_df.sort_values(by='code')
+    pred_df = pred_df.drop_duplicates().reset_index(drop=True)
     pred_df.to_excel(os.path.join(args['output_dir'], 'pred.xlsx'))

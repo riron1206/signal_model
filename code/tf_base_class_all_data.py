@@ -244,7 +244,9 @@ def pred_directory(args):
 
     # generator predict TTA
     #load_model = keras.models.load_model(os.path.join(args['output_dir'], 'best_val_loss.h5'))
-    load_model = keras.models.load_model(os.path.join(args['output_dir'], 'best_val_accuracy.h5'))
+    #load_model = keras.models.load_model(os.path.join(args['output_dir'], 'best_val_accuracy.h5'))
+    load_model = keras.models.load_model(os.path.join(args['output_dir'], 'optuna', 'best_trial_accuracy.h5'))
+    #load_model = keras.models.load_model(os.path.join(args['output_dir'], 'optuna', 'best_trial_loss.h5'))
     pred_pb = load_model.predict(X_test)
     top_indices = np.argmax(pred_pb, axis=1)
 
@@ -478,6 +480,7 @@ class Objective(object):
             # acc とloss の記録
             trial.set_user_attr('loss', np.min(hist.history['loss']))
             trial.set_user_attr('val_loss', np.min(hist.history['val_loss']))
+            trial.set_user_attr('val_accuracy', np.max(hist.history['val_accuracy']))
 
             return np.min(hist.history['val_loss'])
         except Exception as e:
