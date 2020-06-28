@@ -1,8 +1,8 @@
 # 株価を信号データとして扱いCNNで株価予想するモデル
 - 80日間の終値を(batch_size, 80, 3)に変換してvggかresnetでモデル作成した
+	- 参考: https://www.youtube.com/watch?v=22Eq_0qADf4
 - 3チャネルは「終値」「25日移動平均」「75日移動平均」
 - 値は 当日の株価/前日の株価 - 0.5 で規格化している
-	- 参考: https://www.youtube.com/watch?v=22Eq_0qADf4
 - 株価データベースと株価csvが必要
 	- https://github.com/riron1206/03.stock_repo/tree/master/sqlite_analysis
 - 02_keras_pyライブラリも必要
