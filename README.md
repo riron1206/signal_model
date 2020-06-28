@@ -17,9 +17,9 @@ $ mklink /d "C:\Users\81908\jupyter_notebook\tf_2_work\stock_work\signal_model\o
 
 ## 行った手順
 #### 1. notebook/*.ipynb でデータ作成、モデル作成試す
-#### 2. code/make_chart_all.py でチャート画像作成
+#### 2. code/make_chart_all.py でデータ作成
 ```bash
-$ python make_chart_all.py
+$ python make_signal_all.py
 ```
 #### 3. code/make_dataset.py でデータセット作成
 ```bash
