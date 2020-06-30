@@ -14,7 +14,7 @@ $ mklink /d "C:\Users\81908\jupyter_notebook\tf_2_work\stock_work\signal_model\o
 ```
 
 ## モデルの正解率は0.6ぐらいだがtest setほぼ「0」ラベルなので実際は全然ダメ
-![CM_without_normalize_optuna_best_trial_accuracy.png](https://github.com/riron1206/signal_model/blob/master/CM_without_normalize_optuna_best_trial_accuracy.png)
+![CM_without_normalize_optuna_best_trial_accuracy.png](https://github.com/riron1206/signal_model/blob/master/CM_without_normalize_best_trial_accuracy.png)
 
 ## 行った手順
 #### 1. notebook/*.ipynb でデータ作成、モデル作成試す
