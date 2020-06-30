@@ -13,7 +13,7 @@
 $ mklink /d "C:\Users\81908\jupyter_notebook\tf_2_work\stock_work\signal_model\output" "D:\work\signal_model\output"
 ```
 
-## モデルの正解率は0.6ぐらいだがtest setほぼ「0」ラベルなので実際は全然ダメ
+## 時系列の分け方で作ったモデルの正解率は0.6ぐらいだがtest setほぼ「0」ラベルなので実際は全然ダメ
 ![CM_without_normalize_optuna_best_trial_accuracy.png](https://github.com/riron1206/signal_model/blob/master/CM_without_normalize_best_trial_accuracy.png)
 
 ## 行った手順
