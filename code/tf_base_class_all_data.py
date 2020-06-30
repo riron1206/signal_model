@@ -11,7 +11,7 @@ Usage:
 
     # optunaでパラメータチューニング
     # 変更するパラメータは Objective.get_class_fine_tuning_parameter_suggestions() で変更する
-    $ python tf_base_class_all_data.py -m tuning -n_t 50 -t_out_dir D:\work\signal_model\output\model\tf_base_class_all_py\optuna
+    $ python tf_base_class_all_data.py -m tuning -n_t 100 -t_out_dir D:\work\signal_model\output\model\tf_base_class_all_py_time_series\optuna
 """
 import os
 import sys
@@ -110,8 +110,8 @@ def get_class_fine_tuning_parameter_base() -> dict:
         #'rotation_range': 20,
         #'channel_shift_range': 50,
         #'brightness_range': [0.3, 1.0],
-        'random_erasing_prob': 0.5,
-        'random_erasing_maxpixel': 255,
+        #'random_erasing_prob': 0.5,
+        #'random_erasing_maxpixel': 255,
         #'mix_up_alpha': 0.2,
         #'random_crop': [224,224],
         #'ricap_beta': 0.3,
@@ -119,7 +119,7 @@ def get_class_fine_tuning_parameter_base() -> dict:
         #'randaugment_N': 3,
         #'randaugment_M': 4,
         #'is_kuzushiji_gen': True,
-        'cutmix_alpha': 1.0
+        #'cutmix_alpha': 1.0
         }
 
     ## Augmentor使う場合のoption
@@ -137,7 +137,7 @@ def get_class_fine_tuning_parameter_base() -> dict:
     #}
 
     return {
-        'output_dir': r'D:\work\signal_model\output\model\tf_base_class_all_py',
+        'output_dir': r'D:\work\signal_model\output\model\tf_base_class_all_py_time_series',
         'gpu_count': 1,
         #'img_rows': 1,
         'img_cols': 80,
@@ -145,7 +145,8 @@ def get_class_fine_tuning_parameter_base() -> dict:
         'batch_size': 64,
         'classes': ['0', '1', '2'],
         'num_classes': 3,
-        'data_dir': r'D:\work\signal_model\output\dataset\all',
+        #'data_dir': r'D:\work\signal_model\output\dataset\all',
+        'data_dir': r'D:\work\signal_model\output\dataset\time_series',
         # 'color_mode': 'rgb',
         'class_mode': 'categorical',  # generatorのラベルをone-hotベクトルに変換する場合。generatorのラベルを0か1のどちらかに変えるだけなら'binary'
         'activation': 'softmax',
@@ -375,7 +376,8 @@ class Objective(object):
             'batch_size': 64,
             'classes': ['0', '1', '2'],
             'num_classes': 3,
-            'data_dir': r'D:\work\signal_model\output\dataset\all',
+            #'data_dir': r'D:\work\signal_model\output\dataset\all',
+            'data_dir': r'D:\work\signal_model\output\dataset\time_series',
             #'color_mode': 'rgb',
             'class_mode': 'categorical',  # generatorのラベルをone-hotベクトルに変換する場合。generatorのラベルを0か1のどちらかに変えるだけなら'binary'
             'activation': 'softmax',
@@ -499,7 +501,7 @@ if __name__ == '__main__':
     parser.add_argument('--study_name', help="Optuna trials study name", type=str, default='study')
     parser.add_argument('-n_t', '--n_trials', help="Optuna trials number", type=int, default=50)
     parser.add_argument('-t_out_dir', '--tuning_output_dir', help="Optuna trials output_dir", type=str,
-                        default=r'D:\work\signal_model\output\model\tf_base_class_all_py\optuna')
+                        default=r'D:\work\signal_model\output\model\tf_base_class_all_py_time_series\optuna')
     p_args = parser.parse_args()
 
     if p_args.mode == 'train':

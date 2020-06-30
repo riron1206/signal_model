@@ -96,7 +96,8 @@ def pred_signal(model, code, start_date, end_date, classes=['0', '1', '2']):
 def get_args():
     ap = argparse.ArgumentParser()
     ap.add_argument("-o", "--output_dir", type=str, default=r'D:\work\signal_model\output\predict')
-    ap.add_argument("-m", "--model_path", type=str, default=r'D:\work\signal_model\output\model\tf_base_class_all_py\optuna\best_trial_accuracy.h5')
+    #ap.add_argument("-m", "--model_path", type=str, default=r'D:\work\signal_model\output\model\tf_base_class_all_py\optuna\best_trial_accuracy.h5')
+    ap.add_argument("-m", "--model_path", type=str, default=r'D:\work\signal_model\output\model\tf_base_class_all_py_time_series\optuna\best_trial_accuracy.h5')
     ap.add_argument("-c", "--codes", type=int, nargs='*', default=None)
     ap.add_argument("-d", "--date_exe", type=str, default=None)
     ap.add_argument("-t_d", "--term_days", type=int, default=1)

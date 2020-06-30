@@ -3,7 +3,14 @@
 - https://www.youtube.com/watch?v=22Eq_0qADf4
 Usage:
     $ python make_signal_all.py
-    $ python make_signal_all.py -o D:\work\chart_model\output_new\tmp\test  # テスト用
+
+    # テスト用
+    $ python make_signal_all.py -o D:\work\chart_model\output_new\tmp\test
+
+    # 時系列データでの分け方で分割
+    $ python make_signal_all.py -o D:\work\signal_model\output\dataset\time_series\orig\train -start_d 1995-01-01 -stop_d 2016-06-10 -is_uni
+    $ python make_signal_all.py -o D:\work\signal_model\output\dataset\time_series\orig\validation -start_d 2016-06-11 -stop_d 2018-06-10
+    $ python make_signal_all.py -o D:\work\signal_model\output\dataset\time_series\orig\test -start_d 2018-06-11 -stop_d 2020-06-10
 """
 import os
 import glob
@@ -51,11 +58,7 @@ def get_code_close(code, start_date, end_date):
     return table_to_df(sql=sql)
 
 
-def make_signal(code, start_date, end_date,
-                # output_dir=None,
-                # is_ticks=False,
-                # figsize=(1.5, 1.5)
-                ):
+def make_signal(code, start_date, end_date):
     """株価の信号データ作成"""
 
     # 移動平均線とるのでだいぶ前からデータ取得
@@ -105,15 +108,6 @@ def make_signal(code, start_date, end_date,
         arr3 = df['75MA'].values
         arr = np.array([arr1, arr2, arr3]).transpose().reshape(1, 80, 3)
 
-        # if output_dir is not None:
-        #     # (80, 1, 3)の画像にすると直線が1本引かれるだけだからだめ
-        #     output_dir = os.path.join(output_dir, str(label))
-        #     os.makedirs(output_dir, exist_ok=True)
-        #     output_png = os.path.join(output_dir, str(code) + '_' + str(start_date) + '_' + str(last_date) + '.png')
-        #     pil_img = Image.fromarray(np.uint8(arr))
-        #     pil_img.save(output_png)
-        #     plt.show()
-
     return df, label, df_last_date, arr
 
 
@@ -122,6 +116,7 @@ def get_args():
     ap.add_argument("-o", "--output_dir", type=str, default=r'D:\work\signal_model\output\orig_date_all')  # D:\work\signal_model\output\tmp
     ap.add_argument("-start_d", "--start_date", type=str, default='2000-01-01')
     ap.add_argument("-stop_d", "--stop_date", type=str, default='2020-06-10')
+    ap.add_argument("-is_uni", "--is_class_len_uniform", action='store_const', const=True, default=False)
     return vars(ap.parse_args())
 
 
@@ -135,17 +130,15 @@ if __name__ == '__main__':
 
     # 全銘柄コード
     codes = [pathlib.Path(p).stem for p in glob.glob(r'D:\DB_Browser_for_SQLite\csvs\kabuoji3\*csv')]
-    #codes = ['1301', '7974', '9613']  # テスト用
+    # codes = ['1301', '7974', '9613']  # テスト用
 
     class_0_arr = np.zeros((0, 80, 3))
     class_1_arr = np.zeros((0, 80, 3))
     class_2_arr = np.zeros((0, 80, 3))
     count = 0
     for code in codes:
-        start_date = args['start_date']
-        d_start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
-        stop_date = args['stop_date']
-        d_stop_date = datetime.datetime.strptime(stop_date, '%Y-%m-%d').date()
+        d_start_date = datetime.datetime.strptime(args['start_date'], '%Y-%m-%d').date()
+        d_stop_date = datetime.datetime.strptime(args['stop_date'], '%Y-%m-%d').date()
 
         while True:
             d_end_date = d_start_date + datetime.timedelta(weeks=4 * 4 + 2)  # 4ヶ月半後までデータとる
@@ -156,11 +149,13 @@ if __name__ == '__main__':
 
             try:
                 # 株価取得
-                df, label, df_last_date, arr = make_signal(code, d_start_date, d_end_date)  # , output_dir=output_dir
+                df, label, df_last_date, arr = make_signal(code, d_start_date, d_end_date)
 
-                # 80レコード未満なら終わらす
+                # 80レコード未満なら飛ばす
                 if df.shape[0] < 80:
-                    break
+                    print('80レコード未満:', df.shape[0], code, d_start_date, d_end_date)
+                    d_start_date = d_end_date
+                    continue
 
                 if label == 0:
                     class_0_arr = np.append(class_0_arr, arr, axis=0)
@@ -178,6 +173,19 @@ if __name__ == '__main__':
 
             d_start_date = d_end_date
             count += 1
+
+    # 各クラスの数揃える
+    if args['is_class_len_uniform']:
+        print('--- class_len_uniform ---')
+        class_arrs = [class_0_arr, class_1_arr, class_2_arr]
+        len_arrs = [arr.shape[0] for arr in class_arrs]
+        seed = 42  # 乱数シード固定
+        np.random.seed(seed)
+        # ランダムサンプリングして各クラス数合わせる
+        class_arrs_sampling = [arr[np.random.randint(arr.shape[0], size=min(len_arrs)), :, :] for arr in class_arrs]
+        class_0_arr = class_arrs_sampling[0]
+        class_1_arr = class_arrs_sampling[1]
+        class_2_arr = class_arrs_sampling[2]
 
     np.save(os.path.join(output_dir, 'class_0_arr.npy'), class_0_arr)
     np.save(os.path.join(output_dir, 'class_1_arr.npy'), class_1_arr)
