@@ -188,7 +188,7 @@ if __name__ == '__main__':
                 pass
 
     pred_df = pd.DataFrame({'date_exe': date_exes, 'date_exe_close': closes, 'code': cs, '15_days_after_pred_y': ys, 'pred_pb': pbs})
+    pred_df = pred_df.drop_duplicates().reset_index(drop=True)
     pred_df = pred_df.sort_values(by='date_exe')
     pred_df = pred_df.sort_values(by='code')
-    pred_df = pred_df.drop_duplicates().reset_index(drop=True)
     pred_df.to_excel(os.path.join(args['output_dir'], 'pred.xlsx'))
