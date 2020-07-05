@@ -137,7 +137,8 @@ def get_class_fine_tuning_parameter_base() -> dict:
     #}
 
     return {
-        'output_dir': r'D:\work\signal_model\output\model\tf_base_class_all_py_time_series',
+        #'output_dir': r'D:\work\signal_model\output\model\tf_base_class_all_py_time_series',
+        'output_dir': r'D:\work\signal_model\output\model\tf_base_class_all_py_time_series_v2',
         'gpu_count': 1,
         #'img_rows': 1,
         'img_cols': 80,
@@ -146,19 +147,23 @@ def get_class_fine_tuning_parameter_base() -> dict:
         'classes': ['0', '1', '2'],
         'num_classes': 3,
         #'data_dir': r'D:\work\signal_model\output\dataset\all',
-        'data_dir': r'D:\work\signal_model\output\dataset\time_series',
+        #'data_dir': r'D:\work\signal_model\output\dataset\time_series',
+        'data_dir': r'D:\work\signal_model\output\dataset\time_series_v2',
         # 'color_mode': 'rgb',
         'class_mode': 'categorical',  # generatorのラベルをone-hotベクトルに変換する場合。generatorのラベルを0か1のどちらかに変えるだけなら'binary'
         'activation': 'softmax',
         'loss': 'categorical_crossentropy',
-        'metrics': ['accuracy'],
+        'metrics': ['accuracy',
+                    keras.metrics.Precision(name='precision'),
+                    keras.metrics.Recall(name='recall'),
+                    keras.metrics.AUC(name='auc')],
         'model_path': None,
         'num_epoch': 200,
         #'n_multitask': 1,  # マルチタスクのタスク数
         #'multitask_pred_n_node': 1,  # マルチタスクの各クラス数
         # model param
         #'weights': 'imagenet',
-        #'choice_model': 'Xception',
+        'choice_model': 'vgg',
         #'fcpool': 'GlobalAveragePooling2D',
         #'is_skip_bn': False,
         #'trainable': 'all',#249,
@@ -169,8 +174,8 @@ def get_class_fine_tuning_parameter_base() -> dict:
         #'is_add_batchnorm': False,# True,
         #'l2_rate': 1e-4,
         # optimizer param
-        'choice_optim': 'sgd',
-        'lr': 1e-2,
+        'choice_optim': 'sgd',  #'nadam',
+        'lr': 0.001,  # 0.0001,
         'decay': 0.0,
         'my_IDG_options': my_IDG_options,
         #'train_augmentor_options': train_augmentor_options,
@@ -200,9 +205,14 @@ def train_directory(args):
     #valid_gen = valid_datagen.flow(X_valid, y_valid, batch_size=1)
 
     # ### model ### #
-    model = model_2d.create_resnet_2d(input_shape=(args['img_cols'], args['channels']),
-                                      num_classes=args['num_classes'],
-                                      activation=args['activation'])
+    if args['choice_model'] == 'resnet_2d':
+        model = model_2d.create_resnet_2d(input_shape=(args['img_cols'], args['channels']),
+                                          num_classes=args['num_classes'],
+                                          activation=args['activation'])
+    else:
+        model = model_2d.create_vgg_2d(input_shape=(args['img_cols'], args['channels']),
+                                       num_classes=args['num_classes'],
+                                       activation=args['activation'])
 
     optim = define_model.get_optimizers(choice_optim=args['choice_optim'], lr=args['lr'], decay=args['decay'])
     model.compile(loss=args['loss'], optimizer=optim, metrics=args['metrics'])

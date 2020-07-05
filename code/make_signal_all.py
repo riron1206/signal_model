@@ -11,6 +11,9 @@ Usage:
     $ python make_signal_all.py -o D:\work\signal_model\output\dataset\time_series\orig\train -start_d 1995-01-01 -stop_d 2016-06-10 -is_uni
     $ python make_signal_all.py -o D:\work\signal_model\output\dataset\time_series\orig\validation -start_d 2016-06-11 -stop_d 2018-06-10
     $ python make_signal_all.py -o D:\work\signal_model\output\dataset\time_series\orig\test -start_d 2018-06-11 -stop_d 2020-06-10
+
+    # 時系列データでの分け方で分割_v2
+    $ python make_signal_all.py -o D:\work\signal_model\output\dataset\time_series_v2\orig\validation -start_d 2016-06-11 -stop_d 2018-06-10 -is_uni
 """
 import os
 import glob
